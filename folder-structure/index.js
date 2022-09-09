@@ -16,7 +16,6 @@ fs.readJson('./test/folder-config.json')
       folderConfig.components[`${atomicName}`].map((folder) => {
         createFolder(folder.name, folderConfig.path + '/components/' + atomicName);
         createFiles(folder.name, folderConfig.path + '/components/' + atomicName + `/${folder.name}`,folderConfig.options);
-        console.log(folder);
       });
     });
   })
@@ -36,12 +35,16 @@ const createFolder = (folderName, path) => {
 
 
 const createFiles = (fileName, path,options) => {
+   buildContentString(fileName,options.jstsx).then((content)=> {
+    fs.outputFile(`${path}/index.${options.jstsx}`, content)
+    .then((file) => {
+  
+    })
+    .catch(err => {
+      console.error(err)
+    })
+   });
 
-  fs.outputFile(`${path}/index.${options.jstsx}`, 'hello!')
-  .then((file) => {})
-  .catch(err => {
-    console.error(err)
-  })
 
   fs.outputFile(`${path}/index.${options.css}`, 'hello!')
   .then((file) => {})
@@ -50,5 +53,16 @@ const createFiles = (fileName, path,options) => {
   })
 };
 
+const buildContentString = (componentName, fileType ) => {
+    return new Promise(function(myResolve, myReject) {
+        // "Producing Code" (May take some time)
+        fs.readJson('./folder-structure/snippets.json').then((snippets)=> {
+            var str = snippets[`${fileType}`];
+            var mutatedStr = str.replaceAll('componentName', componentName)
+            myResolve(mutatedStr); // when successful
+        }).catch((err) => myReject(err))
+        });
+  
+}
 
 
