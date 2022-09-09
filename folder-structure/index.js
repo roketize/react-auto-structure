@@ -39,6 +39,12 @@ const createFiles = (fileName, path,options) => {
     var filePath = `${path}/index.${options.jstsx}`;
     fs.outputFile(filePath, content)
     .then(() => {
+
+      // Import edilecek moduller config dosyasına eklenecek. 
+      // Eklenecek moduller tiplerine göre ayrı ayrı listelerde eklenmeli örn
+      //  "molecules": [
+      // {"name":"exampleComponent","propTypes":true,"atoms":["simpleButton","simpleText"]}
+      // ],
       var modules = ['import test from "../../test/test"', 'import test from "../../test/test"'];
 
       addModules(filePath,modules);
@@ -61,6 +67,8 @@ const addModules = (path,modules) => {
   fs.readFile(path,"utf8").then((file)=>{
     let lines = file.split('\n');
     for(var i = 0; i < lines.length; i++) {
+
+      // Dosyanın 2. satırından sonra gelen moduller ekleniyor.
       if(i==2) {
         var module = '';
         for(var j = 0; j < modules.length; j++) {
@@ -68,10 +76,13 @@ const addModules = (path,modules) => {
         }
         lines[2] = module + lines[2];
       }
+
       if(lines[i].includes("<>")){
-        //lines[i+1] = "<div>test</div>\n";
+        //test 
+        lines[i+1] = "<div>test</div>\n";
       }
     }
+    
     let newFile = lines.join('\n');
     fs.outputFile(path, newFile).then(()=>{
       //console.log("created");
