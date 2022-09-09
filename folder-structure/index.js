@@ -36,9 +36,12 @@ const createFolder = (folderName, path) => {
 
 const createFiles = (fileName, path,options) => {
    buildContentString(fileName,options.jstsx).then((content)=> {
-    fs.outputFile(`${path}/index.${options.jstsx}`, content)
-    .then((file) => {
-  
+    var filePath = `${path}/index.${options.jstsx}`;
+    fs.outputFile(filePath, content)
+    .then(() => {
+      var modules = ['import test from "../../test/test"', 'import test from "../../test/test"'];
+
+      addModules(filePath,modules);
     })
     .catch(err => {
       console.error(err)
@@ -47,11 +50,34 @@ const createFiles = (fileName, path,options) => {
 
 
   fs.outputFile(`${path}/index.${options.css}`, 'hello!')
-  .then((file) => {})
+  .then(() => {})
   .catch(err => {
     console.error(err)
   })
 };
+
+
+const addModules = (path,modules) => {
+  fs.readFile(path,"utf8").then((file)=>{
+    let lines = file.split('\n');
+    for(var i = 0; i < lines.length; i++) {
+      if(i==2) {
+        var module = '';
+        for(var j = 0; j < modules.length; j++) {
+          module += modules[j] + "\n"; 
+        }
+        lines[2] = module + lines[2];
+      }
+      if(lines[i].includes("<>")){
+        //lines[i+1] = "<div>test</div>\n";
+      }
+    }
+    let newFile = lines.join('\n');
+    fs.outputFile(path, newFile).then(()=>{
+      //console.log("created");
+    })
+  })
+}
 
 const buildContentString = (componentName, fileType ) => {
     return new Promise(function(myResolve, myReject) {
@@ -64,5 +90,7 @@ const buildContentString = (componentName, fileType ) => {
         });
   
 }
+
+
 
 
