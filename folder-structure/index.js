@@ -35,4 +35,20 @@ const createFolder = (folderName, path) => {
 };
 
 
+const createFiles = (fileName, path,options) => {
+
+  fs.outputFile(`${path}/index.${options.jstsx}`, 'hello!')
+  .then((file) => {})
+  .catch(err => {
+    console.error(err)
+  })
+
+  fs.outputFile(`${path}/index.${options.css}`, 'hello!')
+  .then((file) => {})
+  .catch(err => {
+    console.error(err)
+  })
+};
+
+
 
