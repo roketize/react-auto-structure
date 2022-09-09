@@ -1,0 +1,19 @@
+{
+  "name": "auto-structure",
+  "version": "1.0.0",
+  "description": "",
+  "main": "/folder-structure/index.js",
+  "scripts": {
+    "test": "node ./folder-structure/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roketize/auto-structure.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roketize/auto-structure/issues"
+  },
+  "homepage": "https://github.com/roketize/auto-structure#readme"
+}
