@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/roketize/auto-structure/issues"
   },
-  "homepage": "https://github.com/roketize/auto-structure#readme"
+  "homepage": "https://github.com/roketize/auto-structure#readme",
+  "dependencies": {
+    "fs-extra": "^10.1.0"
+  }
 }
