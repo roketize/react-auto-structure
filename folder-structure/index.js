@@ -7,7 +7,11 @@ const fs = require('fs-extra');
  * config.json okuyup static variable at !TODO!
  *
  */
-var ATOMIC_FOLDERS = ['atoms', 'molecules', 'organisms', 'templates'];
+
+const ATOMIC_FOLDERS = ['atoms', 'molecules', 'organisms', 'templates'];
+const componentPathSet = new Map();
+
+
 fs.readJson('./test/folder-config.json')
   .then((folderConfig) => {
     //!TODO create folders
@@ -15,7 +19,7 @@ fs.readJson('./test/folder-config.json')
       createFolder(atomicName, folderConfig.path + '/components');
       folderConfig.components[`${atomicName}`].map((folder) => {
         createFolder(folder.name, folderConfig.path + '/components/' + atomicName);
-        createFiles(folder.name, folderConfig.path + '/components/' + atomicName + `/${folder.name}`,folderConfig.options);
+        createFiles(folder, folderConfig.path + '/components/' + atomicName + `/${folder.name}`, folderConfig.options);
       });
     });
   })
@@ -24,18 +28,19 @@ fs.readJson('./test/folder-config.json')
   });
 
 const createFolder = (folderName, path) => {
-  fs.ensureDir(`${path}/${folderName}`)
+  const newFolderPath = `${path}/${folderName}`;
+  fs.ensureDir(newFolderPath)
   .then(() => {
-
-    //console.log('success!')
+    /*adding path to componentPathSet in order to 
+    import within tsx/js files **/
+    componentPathSet.set(folderName, newFolderPath);
   }).catch(err =>{
     console.error(err);
   })
 };
 
-
-const createFiles = (fileName, path,options) => {
-   buildContentString(fileName,options.jstsx).then((content)=> {
+const createFiles = (file, path, options) => {
+   buildContentString(file.name,options.jstsx).then((content)=> {
     var filePath = `${path}/index.${options.jstsx}`;
     fs.outputFile(filePath, content)
     .then(() => {
@@ -45,9 +50,11 @@ const createFiles = (fileName, path,options) => {
       //  "molecules": [
       // {"name":"exampleComponent","propTypes":true,"atoms":["simpleButton","simpleText"]}
       // ],
-      var modules = ['import test from "../../test/test"', 'import test from "../../test/test"'];
-
-      addModules(filePath,modules);
+      // var modules = ['import test from "../../test/test"', 'import test from "../../test/test"'];
+      //if children exist then imports.
+      if( file.children != undefined ){
+      addModules(filePath, file.children);
+    }
     })
     .catch(err => {
       console.error(err)
@@ -55,16 +62,19 @@ const createFiles = (fileName, path,options) => {
    });
 
 
-  fs.outputFile(`${path}/index.${options.css}`, 'hello!')
+  fs.outputFile(`${path}/index.${options.css}`, '')
   .then(() => {})
   .catch(err => {
     console.error(err)
   })
 };
 
-
-const addModules = (path,modules) => {
+const addModules = (path, children) => {
   fs.readFile(path,"utf8").then((file)=>{
+    var modules = [];
+    children.map((module) => {
+      modules.push(`import ${module} from '/${componentPathSet.get(module)}'`);
+    });
     let lines = file.split('\n');
     for(var i = 0; i < lines.length; i++) {
 
