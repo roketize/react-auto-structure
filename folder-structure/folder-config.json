@@ -1,0 +1,24 @@
+{
+  "components": { 
+    "atoms": [
+      {"name":"simpleButton","propTypes":true},
+      {"name":"simpleInput","propTypes":false}
+    ],
+    "molecules": [
+      {"name":"styledButton","propTypes":true},
+      {"name":"styledInput","propTypes":false}
+    ],
+    "organisms": [
+      {"name":"simpleForm","propTypes":true, "children":["simpleButton","simpleInput"]},
+      {"name":"navBar","propTypes":false}
+    ],
+    "templates": [
+      {"name":"homeDefaulr","propTypes":true}
+    ]
+   },
+   "options": {
+      "jstsx":"js",
+      "css":"sass" 
+   },
+   "path":"defaultPath"
+}
