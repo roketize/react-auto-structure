@@ -44,7 +44,9 @@ fs.readJson('./folder-structure/folder-config.json')
       }
     })
 
-    
+    if(folderConfig.options.router === true){
+      createFolder("router", folderConfig.path + '/');
+    }
   })
   .catch((err) => {
     console.error(err);
@@ -67,16 +69,31 @@ const createFiles = (file, path, options) => {
     var filePath = `${path}/index.${options.jstsx}`;
     fs.outputFile(filePath, content)
     .then(() => {
-
-      // Import edilecek moduller config dosyasına eklenecek. 
-      // Eklenecek moduller tiplerine göre ayrı ayrı listelerde eklenmeli örn
-      //  "molecules": [
-      // {"name":"exampleComponent","propTypes":true,"atoms":["simpleButton","simpleText"]}
-      // ],
-      // var modules = ['import test from "../../test/test"', 'import test from "../../test/test"'];
       //if children exist then imports.
       if( file.children != undefined ){
       addModules(filePath, file.children);
+    }
+    })
+    .catch(err => {
+      console.error(err)
+    })
+   });
+  }
+  
+const createRouterFile = (file, path, options) => {
+   buildContentString(file.name, options.jstsx).then((content)=> {
+    var filePath = `${path}/index.${options.jstsx}`;
+    fs.outputFile(filePath, content)
+    .then(() => {
+      //if children exist then imports.
+      if( file.children != undefined ){
+      var childTemp = file.children;
+      addModules(filePath, file.children);
+
+      while(childTemp.children != undefined){
+      addModules(filePath, childTemp.children);
+      childTemp = childTemp.children;
+      }
     }
     })
     .catch(err => {
@@ -102,7 +119,7 @@ const addModules = (path, children) => {
     for(var i = 0; i < lines.length; i++) {
 
       // Dosyanın 2. satırından sonra gelen moduller ekleniyor.
-      if(i==2) {
+      if(i == 2) {
         var module = '';
         for(var j = 0; j < modules.length; j++) {
           module += modules[j] + "\n"; 
@@ -134,6 +151,17 @@ const buildContentString = (componentName, fileType ) => {
         });
   
 }
+// const buildRouterString = ( fileType ) => {
+//     return new Promise(function(myResolve, myReject) {
+//         // "Producing Code" (May take some time)
+//         fs.readJson('./folder-structure/snippets.json').then((snippets)=> {
+//             var str = snippets[`${fileType}`];
+//             var mutatedStr = str.replaceAll('componentName', componentName)
+//             myResolve(mutatedStr); // when successful
+//         }).catch((err) => myReject(err))
+//         });
+  
+// }
 
 
 

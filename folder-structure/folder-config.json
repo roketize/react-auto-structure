@@ -21,7 +21,7 @@
     },
     "default" :{
       "pages":[
-        {"name":"homePage","propTypes":true}
+        {"name":"homePage", "children":[{"name":"Teams","path":"teams","propTypes":true, "children":[{"name":"Team","path":"team","propTypes":true},{"name":"NewTeamForm","path":":teamid","propTypes":true}]}], "propTypes":true}
       ],
       "components":[
         {"name":"homeComponent","propTypes":true}
@@ -33,7 +33,6 @@
     },
    "router":{
       "homepage":"homePage"
-
    },
    "options": {
       "jstsx":"js",
