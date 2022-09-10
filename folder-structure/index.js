@@ -9,19 +9,42 @@ const fs = require('fs-extra');
  */
 
 const ATOMIC_FOLDERS = ['atoms', 'molecules', 'organisms', 'templates'];
+const DEFAULT_FOLDERS = ['pages', 'components', 'layouts'];
+const SHARED_FOLDERS = ['assets', 'config'];
+
+
 const componentPathSet = new Map();
 
 
-fs.readJson('./test/folder-config.json')
+fs.readJson('./folder-structure/folder-config.json')
   .then((folderConfig) => {
     //!TODO create folders
-    ATOMIC_FOLDERS.map((atomicName) => {
-      createFolder(atomicName, folderConfig.path + '/components');
-      folderConfig.components[`${atomicName}`].map((folder) => {
-        createFolder(folder.name, folderConfig.path + '/components/' + atomicName);
-        createFiles(folder, folderConfig.path + '/components/' + atomicName + `/${folder.name}`, folderConfig.options);
+    if(folderConfig.options.pattern == "atomic"){
+      ATOMIC_FOLDERS.map((atomicName) => {
+        createFolder(atomicName, folderConfig.path + '/components');
+        folderConfig.components.atomic[`${atomicName}`].map((folder) => {
+          createFolder(folder.name, folderConfig.path + '/components/' + atomicName);
+          createFiles(folder, folderConfig.path + '/components/' + atomicName + `/${folder.name}`, folderConfig.options);
+        });
       });
-    });
+    }
+    else if(folderConfig.options.pattern == "default"){
+      DEFAULT_FOLDERS.map((defaultName) => {
+        createFolder(defaultName, folderConfig.path);
+        folderConfig.components.default[`${defaultName}`].map((folder) => {
+          createFolder(folder.name, folderConfig.path + '/' + defaultName);
+          createFiles(folder, folderConfig.path + '/' + defaultName + `/${folder.name}`, folderConfig.options);
+        });
+      })
+    }
+
+    SHARED_FOLDERS.map((sharedName) => {
+      if(folderConfig.options[`${sharedName}`] == true){
+        createFolder(sharedName, folderConfig.path);
+      }
+    })
+
+    
   })
   .catch((err) => {
     console.error(err);
@@ -92,7 +115,7 @@ const addModules = (path, children) => {
         lines[i+1] = "<div>test</div>\n";
       }
     }
-    
+
     let newFile = lines.join('\n');
     fs.outputFile(path, newFile).then(()=>{
       //console.log("created");
