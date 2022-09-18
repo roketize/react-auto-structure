@@ -9,6 +9,11 @@ const fs = require("fs-extra");
  *
  */
 
+const SNIPPETS = {
+  js: "import React from 'react'\nimport PropTypes from 'prop-types'\n\nconst componentName = props => {\n  return (\n    <>\n\n\t\t</>\n  )\n}\n\ncomponentName.propTypes = {}\n\nexport default componentName\n",
+  tsx: "import React from 'react'\n\ntype Props = {}\n\n\nconst componentName = (props: Props) => {\n  return (\n    <>\n\n\t\t</>\n  )\n}",
+};
+
 const DESIGN_PATTERN = {
   atomic: "atomic",
   default: "default",
@@ -213,13 +218,8 @@ const addModules = (path, children) => {
 
 const buildContentString = (componentName, fileType) => {
   return new Promise(function (myResolve, myReject) {
-    // "Producing Code" (May take some time)
-    fs.readJson("./folder-structure/snippets.json")
-      .then((snippets) => {
-        var str = snippets[`${fileType}`];
-        var mutatedStr = str.replaceAll("componentName", componentName);
-        myResolve(mutatedStr); // when successful
-      })
-      .catch((err) => myReject(err));
+    var str = SNIPPETS[`${fileType}`];
+    var mutatedStr = str.replaceAll("componentName", componentName);
+    myResolve(mutatedStr); // when successful
   });
 };
