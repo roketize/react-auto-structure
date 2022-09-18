@@ -1,5 +1,0 @@
-
-{
-    "js":"import React from 'react'\nimport PropTypes from 'prop-types'\n\nconst componentName = props => {\n  return (\n    <>\n\n\t\t</>\n  )\n}\n\ncomponentName.propTypes = {}\n\nexport default componentName\n",
-    "tsx": "import React from 'react'\n\ntype Props = {}\n\n\nconst componentName = (props: Props) => {\n  return (\n    <>\n\n\t\t</>\n  )\n}"
-}

@@ -1,6 +1,6 @@
 {
   "name": "react-auto-structure",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "main": "/folder-structure/bin/index.js",
   "scripts": {
