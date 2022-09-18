@@ -9,40 +9,73 @@ const fs = require("fs-extra");
  *
  */
 
-const ATOMIC_FOLDERS = ["atoms", "molecules", "organisms", "templates"];
-const DEFAULT_FOLDERS = ["pages", "components", "layouts"];
+const DESIGN_PATTERN = {
+  atomic: "atomic",
+  default: "default",
+};
+
+const ATOMIC_FOLDERS = {
+  atoms: "atoms",
+  molecules: "molecules",
+  organisms: "organisms",
+  templates: "templates",
+  pages: "pages",
+};
+const DEFAULT_FOLDERS = {
+  pages: "pages",
+  components: "components",
+  layouts: "layouts",
+};
 const SHARED_FOLDERS = ["assets", "config"];
-const configPath = "./folder-config.json";
+const CONFIG_PATH = "./folder-config.json";
 
 const componentPathSet = new Map();
 
-if (fs.existsSync(configPath)) {
-  fs.readJson(configPath)
+if (fs.existsSync(CONFIG_PATH)) {
+  fs.readJson(CONFIG_PATH)
     .then((folderConfig) => {
-      //!TODO create folders
-      if (folderConfig.options.pattern == "atomic") {
-        ATOMIC_FOLDERS.map((atomicName) => {
+      if (folderConfig.options.pattern == DESIGN_PATTERN.atomic) {
+        Object.keys(ATOMIC_FOLDERS).forEach((atomicName) => {
           createFolder(atomicName, folderConfig.path + "/components");
           folderConfig.components.atomic[`${atomicName}`].map((folder) => {
-            createFolder(
-              folder.name,
-              folderConfig.path + "/components/" + atomicName
-            );
-            createFiles(
-              folder,
-              folderConfig.path +
-                "/components/" +
-                atomicName +
-                `/${folder.name}`,
-              folderConfig.options
-            );
+            if (atomicName != ATOMIC_FOLDERS.pages) {
+              createFolder(
+                folder.name,
+                folderConfig.path + "/components/" + atomicName
+              );
+              createFiles(
+                folder,
+                folderConfig.path +
+                  "/components/" +
+                  atomicName +
+                  `/${folder.name}`,
+                folderConfig.options
+              );
+            } else {
+              var childTemp = folder.children;
+              createFolder(
+                folder.name,
+                folderConfig.path + "/components/" + atomicName
+              );
+              createFiles(
+                folder,
+                folderConfig.path +
+                  "/components/" +
+                  atomicName +
+                  `/${folder.name}`,
+                folderConfig.options
+              );
+              if (childTemp != undefined) {
+                createChildFolderAtomic(childTemp, folderConfig, atomicName);
+              }
+            }
           });
         });
-      } else if (folderConfig.options.pattern == "default") {
-        DEFAULT_FOLDERS.map((defaultName) => {
+      } else if (folderConfig.options.pattern == DESIGN_PATTERN.default) {
+        Object.keys(DEFAULT_FOLDERS).forEach((defaultName) => {
           createFolder(defaultName, folderConfig.path);
           folderConfig.components.default[`${defaultName}`].map((folder) => {
-            if (defaultName != "pages") {
+            if (defaultName != DEFAULT_FOLDERS.pages) {
               createFolder(folder.name, folderConfig.path + "/" + defaultName);
               createFiles(
                 folder,
@@ -58,7 +91,7 @@ if (fs.existsSync(configPath)) {
                 folderConfig.options
               );
               if (childTemp != undefined) {
-                createChildFolder(childTemp, folderConfig, defaultName);
+                createChildFolderDefault(childTemp, folderConfig, defaultName);
               }
             }
           });
@@ -82,7 +115,7 @@ if (fs.existsSync(configPath)) {
   console.error("folder-config.json does not exist in the root directory.");
 }
 
-const createChildFolder = (item, folderConfig, defaultName) => {
+const createChildFolderDefault = (item, folderConfig, defaultName) => {
   item.map((childFolder) => {
     createFolder(childFolder.name, folderConfig.path + "/" + defaultName);
     createFiles(
@@ -91,7 +124,24 @@ const createChildFolder = (item, folderConfig, defaultName) => {
       folderConfig.options
     );
     if (childFolder.children != undefined) {
-      createChildFolder(childFolder.children, folderConfig, defaultName);
+      createChildFolderDefault(childFolder.children, folderConfig, defaultName);
+    }
+  });
+};
+
+const createChildFolderAtomic = (item, folderConfig, atomicName) => {
+  item.map((childFolder) => {
+    createFolder(
+      childFolder.name,
+      folderConfig.path + "/components/" + atomicName
+    );
+    createFiles(
+      childFolder,
+      folderConfig.path + "/components/" + atomicName + `/${childFolder.name}`,
+      folderConfig.options
+    );
+    if (childFolder.children != undefined) {
+      createChildFolderAtomic(childFolder.children, folderConfig, atomicName);
     }
   });
 };
@@ -117,34 +167,6 @@ const createFiles = (file, path, options) => {
         //if children exist then imports.
         if (file.children != undefined) {
           addModules(filePath, file.children);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  });
-
-  fs.outputFile(`${path}/index.${options.css}`, "")
-    .then(() => {})
-    .catch((err) => {
-      console.error(err);
-    });
-};
-
-const createRouterFile = (file, path, options) => {
-  buildContentString(file.name, options.jstsx).then((content) => {
-    var filePath = `${path}/index.${options.jstsx}`;
-    fs.outputFile(filePath, content)
-      .then(() => {
-        //if children exist then imports.
-        if (file.children != undefined) {
-          var childTemp = file.children;
-          addModules(filePath, file.children);
-
-          while (childTemp.children != undefined) {
-            addModules(filePath, childTemp.children);
-            childTemp = childTemp.children;
-          }
         }
       })
       .catch((err) => {
