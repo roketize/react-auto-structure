@@ -43,7 +43,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Contact
 
-Berkay PAÇAL - pacalberkay@gmail.com
+Berkay PAÇAL - pacalberkay@gmail.com <br>
 Fatih Işık - isk.fatih1@gmail.com
 
 
