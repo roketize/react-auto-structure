@@ -33,7 +33,14 @@ const DEFAULT_FOLDERS = {
 };
 const SHARED_FOLDERS = ['assets', 'config'];
 const CONFIG_PATH = './folder-config.json';
-
+var router = ['import React from "react";',
+              'import ReactDOM from "react-dom/client"',
+              'import { BrowserRouter } from "react-router-dom";',
+              '<BrowserRouter>',
+              '<Routes>',
+              '</Routes>'
+               ,'</BrowserRouter>'];
+var routes = []
 const componentPathSet = new Map();
 
 if (fs.existsSync(CONFIG_PATH)) {
@@ -101,6 +108,7 @@ if (fs.existsSync(CONFIG_PATH)) {
             }
           });
         });
+
       }
 
       SHARED_FOLDERS.map((sharedName) => {
@@ -116,6 +124,17 @@ if (fs.existsSync(CONFIG_PATH)) {
     .catch((err) => {
       console.warn(err);
     });
+
+    setTimeout(() => {
+    router.splice(router.length - 2, 0, ...routes);
+
+        
+      }, 5000);    
+      setTimeout(() => {
+        console.log(router)
+
+
+      }, 5000);
 } else {
   console.error('folder-config.json does not exist in the root directory.');
 }
@@ -135,6 +154,7 @@ const createChildFolderDefault = (item, folderConfig, defaultName) => {
 };
 
 const createChildFolderAtomic = (item, folderConfig, atomicName) => {
+  var count = 0;
   item.map((childFolder) => {
     createFolder(
       childFolder.name,
@@ -145,10 +165,19 @@ const createChildFolderAtomic = (item, folderConfig, atomicName) => {
       folderConfig.path + '/components/' + atomicName + `/${childFolder.name}`,
       folderConfig.options
     );
+    debugger;
+    if (childFolder.children == undefined) {
+
+      addRouteString(false,childFolder);
+    }
+    count++;
     if (childFolder.children != undefined) {
+      addRouteString(true,childFolder);
       createChildFolderAtomic(childFolder.children, folderConfig, atomicName);
+      routes.push(`</route>`)
     }
   });
+
 };
 
 const createFolder = (folderName, path) => {
@@ -225,7 +254,7 @@ const buildContentString = (componentName, fileType) => {
   });
 };
 
-const isRouterExist = () => {
-    const indexJSRoot = '/index.js';
-    
+const addRouteString = (isChild,childFolder) => {
+
+  routes.push(`<Route path="${childFolder.path}" element={<${childFolder.name}/>}${isChild ? '/' : ''}>`)
 }
