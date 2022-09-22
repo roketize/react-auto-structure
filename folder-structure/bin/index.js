@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const fs = require("fs-extra");
+const fs = require('fs-extra');
 /**
  * TODO LIST
  * -Atomları moleküllerde, molekülleri organizmalarda çağırma opsiyonu
@@ -15,24 +15,24 @@ const SNIPPETS = {
 };
 
 const DESIGN_PATTERN = {
-  atomic: "atomic",
-  default: "default",
+  atomic: 'atomic',
+  default: 'default',
 };
 
 const ATOMIC_FOLDERS = {
-  atoms: "atoms",
-  molecules: "molecules",
-  organisms: "organisms",
-  templates: "templates",
-  pages: "pages",
+  atoms: 'atoms',
+  molecules: 'molecules',
+  organisms: 'organisms',
+  templates: 'templates',
+  pages: 'pages',
 };
 const DEFAULT_FOLDERS = {
-  pages: "pages",
-  components: "components",
-  layouts: "layouts",
+  pages: 'pages',
+  components: 'components',
+  layouts: 'layouts',
 };
-const SHARED_FOLDERS = ["assets", "config"];
-const CONFIG_PATH = "./folder-config.json";
+const SHARED_FOLDERS = ['assets', 'config'];
+const CONFIG_PATH = './folder-config.json';
 
 const componentPathSet = new Map();
 
@@ -41,17 +41,17 @@ if (fs.existsSync(CONFIG_PATH)) {
     .then((folderConfig) => {
       if (folderConfig.options.pattern == DESIGN_PATTERN.atomic) {
         Object.keys(ATOMIC_FOLDERS).forEach((atomicName) => {
-          createFolder(atomicName, folderConfig.path + "/components");
+          createFolder(atomicName, folderConfig.path + '/components');
           folderConfig.components.atomic[`${atomicName}`].map((folder) => {
             if (atomicName != ATOMIC_FOLDERS.pages) {
               createFolder(
                 folder.name,
-                folderConfig.path + "/components/" + atomicName
+                folderConfig.path + '/components/' + atomicName
               );
               createFiles(
                 folder,
                 folderConfig.path +
-                  "/components/" +
+                  '/components/' +
                   atomicName +
                   `/${folder.name}`,
                 folderConfig.options
@@ -60,12 +60,12 @@ if (fs.existsSync(CONFIG_PATH)) {
               var childTemp = folder.children;
               createFolder(
                 folder.name,
-                folderConfig.path + "/components/" + atomicName
+                folderConfig.path + '/components/' + atomicName
               );
               createFiles(
                 folder,
                 folderConfig.path +
-                  "/components/" +
+                  '/components/' +
                   atomicName +
                   `/${folder.name}`,
                 folderConfig.options
@@ -81,18 +81,18 @@ if (fs.existsSync(CONFIG_PATH)) {
           createFolder(defaultName, folderConfig.path);
           folderConfig.components.default[`${defaultName}`].map((folder) => {
             if (defaultName != DEFAULT_FOLDERS.pages) {
-              createFolder(folder.name, folderConfig.path + "/" + defaultName);
+              createFolder(folder.name, folderConfig.path + '/' + defaultName);
               createFiles(
                 folder,
-                folderConfig.path + "/" + defaultName + `/${folder.name}`,
+                folderConfig.path + '/' + defaultName + `/${folder.name}`,
                 folderConfig.options
               );
             } else {
               var childTemp = folder.children;
-              createFolder(folder.name, folderConfig.path + "/" + defaultName);
+              createFolder(folder.name, folderConfig.path + '/' + defaultName);
               createFiles(
                 folder,
-                folderConfig.path + "/" + defaultName + `/${folder.name}`,
+                folderConfig.path + '/' + defaultName + `/${folder.name}`,
                 folderConfig.options
               );
               if (childTemp != undefined) {
@@ -110,22 +110,22 @@ if (fs.existsSync(CONFIG_PATH)) {
       });
 
       if (folderConfig.options.router === true) {
-        createFolder("router", folderConfig.path + "/");
+        createFolder('router', folderConfig.path + '/');
       }
     })
     .catch((err) => {
       console.warn(err);
     });
 } else {
-  console.error("folder-config.json does not exist in the root directory.");
+  console.error('folder-config.json does not exist in the root directory.');
 }
 
 const createChildFolderDefault = (item, folderConfig, defaultName) => {
   item.map((childFolder) => {
-    createFolder(childFolder.name, folderConfig.path + "/" + defaultName);
+    createFolder(childFolder.name, folderConfig.path + '/' + defaultName);
     createFiles(
       childFolder,
-      folderConfig.path + "/" + defaultName + `/${childFolder.name}`,
+      folderConfig.path + '/' + defaultName + `/${childFolder.name}`,
       folderConfig.options
     );
     if (childFolder.children != undefined) {
@@ -138,11 +138,11 @@ const createChildFolderAtomic = (item, folderConfig, atomicName) => {
   item.map((childFolder) => {
     createFolder(
       childFolder.name,
-      folderConfig.path + "/components/" + atomicName
+      folderConfig.path + '/components/' + atomicName
     );
     createFiles(
       childFolder,
-      folderConfig.path + "/components/" + atomicName + `/${childFolder.name}`,
+      folderConfig.path + '/components/' + atomicName + `/${childFolder.name}`,
       folderConfig.options
     );
     if (childFolder.children != undefined) {
@@ -171,7 +171,8 @@ const createFiles = (file, path, options) => {
       .then(() => {
         //if children exist then imports.
         if (file.children != undefined) {
-          addModules(filePath, file.children);
+          // console.log (file.children);
+          // addModules(filePath, file.children);
         }
       })
       .catch((err) => {
@@ -179,47 +180,52 @@ const createFiles = (file, path, options) => {
       });
   });
 
-  fs.outputFile(`${path}/index.${options.css}`, "")
+  fs.outputFile(`${path}/index.${options.css}`, '')
     .then(() => {})
     .catch((err) => {
       console.error(err);
     });
 };
 
-const addModules = (path, children) => {
-  fs.readFile(path, "utf8").then((file) => {
-    var modules = [];
-    children.map((module) => {
-      modules.push(`import ${module} from '/${componentPathSet.get(module)}'`);
-    });
-    let lines = file.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-      // Dosyanın 2. satırından sonra gelen moduller ekleniyor.
-      if (i == 2) {
-        var module = "";
-        for (var j = 0; j < modules.length; j++) {
-          module += modules[j] + "\n";
-        }
-        lines[2] = module + lines[2];
-      }
+// const addModules = (path, children) => {
+//   fs.readFile(path, 'utf8').then((file) => {
+//     var modules = [];
+//     children.map((module) => {
+//       modules.push(`import ${module} from '/${componentPathSet.get(module)}'`);
+//     });
+//     let lines = file.split('\n');
+//     for (var i = 0; i < lines.length; i++) {
+//       // Dosyanın 2. satırından sonra gelen moduller ekleniyor.
+//       if (i == 2) {
+//         var moduleImport = '';
+//         for (var j = 0; j < modules.length; j++) {
+//           moduleImport += modules[j] + '\n';
+//         }
+//         lines[2] = moduleImport + lines[2];
+//       }
 
-      if (lines[i].includes("<>")) {
-        //test
-        lines[i + 1] = "<div>test</div>\n";
-      }
-    }
+//       if (lines[i].includes('<>')) {
+//         //test
+//         lines[i + 1] = `<${module.filename}>test</${module}>\n`;
+//       }
+//     }
 
-    let newFile = lines.join("\n");
-    fs.outputFile(path, newFile).then(() => {
-      //console.log("created");
-    });
-  });
-};
+//     let newFile = lines.join('\n');
+//     fs.outputFile(path, newFile).then(() => {
+//       //console.log('created');
+//     });
+//   });
+// };
 
 const buildContentString = (componentName, fileType) => {
   return new Promise(function (myResolve, myReject) {
     var str = SNIPPETS[`${fileType}`];
-    var mutatedStr = str.replaceAll("componentName", componentName);
+    var mutatedStr = str.replaceAll('componentName', componentName);
     myResolve(mutatedStr); // when successful
   });
 };
+
+const isRouterExist = () => {
+    const indexJSRoot = '/index.js';
+    
+}
