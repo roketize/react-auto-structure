@@ -130,11 +130,7 @@ if (fs.existsSync(CONFIG_PATH)) {
 
         
       }, 5000);    
-      setTimeout(() => {
-        console.log(router)
 
-
-      }, 5000);
 } else {
   console.error('folder-config.json does not exist in the root directory.');
 }
@@ -165,7 +161,6 @@ const createChildFolderAtomic = (item, folderConfig, atomicName) => {
       folderConfig.path + '/components/' + atomicName + `/${childFolder.name}`,
       folderConfig.options
     );
-    debugger;
     if (childFolder.children == undefined) {
 
       addRouteString(false,childFolder);
@@ -174,11 +169,25 @@ const createChildFolderAtomic = (item, folderConfig, atomicName) => {
     if (childFolder.children != undefined) {
       addRouteString(true,childFolder);
       createChildFolderAtomic(childFolder.children, folderConfig, atomicName);
-      routes.push(`</route>`)
+      routes.push(`</Route>\n`)
+
     }
   });
+  //adding routes to router.js
+  let pageSnippet = folderConfig.options.jstsx === 'js' ? SNIPPETS.js : SNIPPETS.tsx;
+  let pageSnippetSplit = pageSnippet.split(`return (`);
+  debugger;
+  let routerPageStr =  pageSnippetSplit[0] +`return (` + routes.map(d => d.toString()).join('') + pageSnippetSplit[1].replace('<>','').replace('</>','');
+  routerPageStr.replaceAll('componentName', 'router');
+  fs.outputFile(`./router/router.${folderConfig.options.jstsx}`, routerPageStr)
+      .then(() => {
 
+      })
+      .catch((err) => {
+        console.error(err);
+      });
 };
+
 
 const createFolder = (folderName, path) => {
   const newFolderPath = `${path}/${folderName}`;
@@ -256,5 +265,5 @@ const buildContentString = (componentName, fileType) => {
 
 const addRouteString = (isChild,childFolder) => {
 
-  routes.push(`<Route path="${childFolder.path}" element={<${childFolder.name}/>}${isChild ? '/' : ''}>`)
+  routes.push(`<Route path="${childFolder.path}" element={<${childFolder.name}/>}${isChild ? '/' : ''}>\n`)
 }
